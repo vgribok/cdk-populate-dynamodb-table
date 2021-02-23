@@ -3,6 +3,7 @@ using Amazon.CDK;
 using Amazon.CDK.AWS.DynamoDB;
 using Amazon.CDK.CustomResources;
 using Amazon.CDK.AWS.IAM;
+using System.Linq;
 
 namespace CdkDdbPopulate
 {
@@ -21,6 +22,21 @@ namespace CdkDdbPopulate
                 SortKey = new Attribute { Name = "sort", Type = AttributeType.STRING }
             });
 
+            var data = new Dictionary<string, object>[] {
+                new Dictionary<string, object> {
+                    { "id", "0" },
+                    { "sort", "a"},
+                    { "field1", "Hello!"},
+                    { "field2", "Good bye!"}
+                },
+                new Dictionary<string, object> {
+                    { "id", "1" },
+                    { "sort", "a"},
+                    { "field1", "What's up!"},
+                    { "field2", "See ya!"}
+                },
+            };
+
             var putItemCall = new AwsSdkCall 
             {
                 Service = "DynamoDB",
@@ -28,12 +44,7 @@ namespace CdkDdbPopulate
                 PhysicalResourceId = PhysicalResourceId.Of($"{ddbTableName}_initialization"),
                 Parameters = new Dictionary<string, object> {
                     {"TableName", ddbTableName},
-                    {"Item", new Dictionary<string,object>{
-                        { "id", new Dictionary<string, object> {{"S", "0"}} },
-                        { "sort",  new Dictionary<string, object> {{"S", "a"}} },
-                        { "field1", new Dictionary<string, object> {{"S", "Hello!"}} },
-                        { "field2", new Dictionary<string, object> {{"S", "Good bye!"}} },
-                    }},
+                    { "Item", PrepItem(data[1]) },
                     {"ConditionExpression", "attribute_not_exists(id)"}
                 }
             };
@@ -52,5 +63,37 @@ namespace CdkDdbPopulate
 
             ddbTableInitializer.Node.AddDependency(table);
         }
+
+        private static string GetDdbType(object val)
+        {
+            if(val == null || val is string)
+                return "S";
+
+            if(val.GetType().IsPrimitive)            
+            {
+                if(val is bool)
+                    return "B";
+                if(val is int || val is long || val is decimal || val is double || val is byte || val is float || val is short || val is uint || val is ulong || val is ushort)
+                    return "N";
+            }
+            return "S";
+        }
+
+        /*
+        Example:
+        {
+            id: { S: "1" };
+            firstName: { S: "John" }
+            lastName: { S: "Doe" }
+            shoeSize: { N: 10 }
+            favoriteColor: { S: "blue" }
+            isActive: {B: true }
+        }
+        */
+        private static Dictionary<string,Dictionary<string,object>> PrepItem(Dictionary<string,object> item) => 
+            item.ToDictionary(
+                prop => prop.Key, 
+                prop => new Dictionary<string,object>{{GetDdbType(prop.Value), prop.Value}}
+            );
     }
 }
