@@ -37,17 +37,7 @@ namespace CdkDdbPopulate
                 },
             };
 
-            var putItemCall = new AwsSdkCall 
-            {
-                Service = "DynamoDB",
-                Action = "putItem",
-                PhysicalResourceId = PhysicalResourceId.Of($"{ddbTableName}_initialization"),
-                Parameters = new Dictionary<string, object> {
-                    {"TableName", ddbTableName},
-                    { "Item", PrepItem(data[1]) },
-                    {"ConditionExpression", "attribute_not_exists(id)"}
-                }
-            };
+            var putItemCall = GenSinglePutItem(ddbTableName, data[1]);
 
             var ddbTableInitializer = new AwsCustomResource(this, "DdbTableInitializer", new AwsCustomResourceProps {
                 Policy = AwsCustomResourcePolicy.FromStatements(new PolicyStatement[] {
@@ -63,6 +53,19 @@ namespace CdkDdbPopulate
 
             ddbTableInitializer.Node.AddDependency(table);
         }
+
+        private static AwsSdkCall GenSinglePutItem(string tableName, IEnumerable<KeyValuePair<string,object>> item) =>
+            new AwsSdkCall 
+            {
+                Service = "DynamoDB",
+                Action = "putItem",
+                PhysicalResourceId = PhysicalResourceId.Of($"{tableName}_initialization"),
+                Parameters = new Dictionary<string, object> {
+                    {"TableName", tableName},
+                    { "Item", PrepItem(item) },
+                    {"ConditionExpression", "attribute_not_exists(id)"}
+                }
+            };
 
         private static string GetDdbType(object val)
         {
@@ -90,7 +93,7 @@ namespace CdkDdbPopulate
             isActive: {B: true }
         }
         */
-        private static Dictionary<string,Dictionary<string,object>> PrepItem(Dictionary<string,object> item) => 
+        private static Dictionary<string,Dictionary<string,object>> PrepItem(IEnumerable<KeyValuePair<string,object>> item) => 
             item.ToDictionary(
                 prop => prop.Key, 
                 prop => new Dictionary<string,object>{{GetDdbType(prop.Value), prop.Value}}
