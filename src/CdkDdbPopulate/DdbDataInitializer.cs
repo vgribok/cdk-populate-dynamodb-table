@@ -106,7 +106,7 @@ public static class DdbDataInitializer
         lastName: { S: "Doe" }
         shoeSize: { N: 10 }
         favoriteColor: { S: "blue" }
-        isActive: {B: true }
+        isActive: {N: 0 }
     }
     */
     private static Dictionary<string,Dictionary<string,object>> PrepItem(IEnumerable<KeyValuePair<string,object>> item) => 
