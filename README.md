@@ -1,7 +1,7 @@
 # Overview
 
-This project is a .NET/C# AWS CDK example showing how Amazon DynamoDB table
-can be seeded from data embedded into the CDK project codebase.
+This project is a .NET/C# AWS CDK example showing how Amazon [DynamoDB table
+can be seeded](src/CdkDdbPopulate/CdkDdbPopulateStack.cs) from data embedded into the CDK project codebase.
 
 ## About this CDK C# project
 
