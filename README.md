@@ -1,9 +1,12 @@
-# Welcome to your CDK C# project!
+# Overview
 
-You should explore the contents of this project. It demonstrates a CDK app with an instance of a stack (`CdkDdbPopulateStack`)
-which contains an Amazon SQS queue that is subscribed to an Amazon SNS topic.
+This project is a .NET/C# AWS CDK example showing how Amazon DynamoDB table
+can be seeded from data embedded into the CDK project codebase.
 
-The `cdk.json` file tells the CDK Toolkit how to execute your app.
+## About this CDK C# project
+
+The `cdk.json` file tells the CDK Toolkit how to execute your app. 
+Run `cdk` command from the directory containing the "cdk.json" file.
 
 It uses the [.NET Core CLI](https://docs.microsoft.com/dotnet/articles/core/) to compile and execute your project.
 
