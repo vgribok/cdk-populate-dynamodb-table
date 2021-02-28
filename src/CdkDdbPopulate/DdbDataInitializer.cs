@@ -23,9 +23,9 @@ public static class DdbDataInitializer
             if(upperBound > data.Length)
                 upperBound = data.Length;
 
-            var batch = data[i..upperBound];
+            Dictionary<string, object>[] batch = data[i..upperBound];
 
-            var putItemCall = GenBatchPut(tableName, batchNum, data);
+            AwsSdkCall putItemCall = GenBatchPut(tableName, batchNum, batch);
 
             var ddbTableInitializer = new AwsCustomResource(scope, $"DdbTableInitializer_{batchNum}", new AwsCustomResourceProps {
                 Policy = AwsCustomResourcePolicy.FromStatements(new PolicyStatement[] {
